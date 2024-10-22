@@ -2,6 +2,7 @@ import openai
 
 client = openai.OpenAI()
 
+# Find a way to generate these tool descriptions
 tools = [
     {
         "type": "function",
@@ -26,28 +27,8 @@ tools = [
                 "required": ["base", "head"],
             },
         },
-    }
+    },
 ]
-
-conversation_history = [
-    {"role": "system", "content": "You are an extremely succinct communicator with experience using the Github API."}
-]
-
-def add_user_message(content):
-    conversation_history.append({"role": "user", "content": content})
-
-def add_assistant_message(content):
-    conversation_history.append({"role": "assistant", "content": content})
-
-def call_openai_with_context():
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=conversation_history,
-        tools=tools
-    )
-    message = response.choices[0].message.content
-    add_assistant_message(message)
-    return response
 
 def run_conversation():
     response = client.chat.completions.create(
@@ -56,7 +37,7 @@ def run_conversation():
             {"role": "system", "content": "You are an extremely succinct communicator with experience using the Github API."},
             {
                 "role": "user",
-                "content": "Check if main and prakash-456789 exist.",
+                "content": "I need to get a diff of two branches. Both exist. Get the diff of main and prakash-456789.",
             },
         ],
         tools=tools,
@@ -65,23 +46,5 @@ def run_conversation():
     message = response.choices[0].message
 
     print(message.model_dump_json(indent=2))
-
-    # In real life, the result of the tool call would be appended to the
-    # conversation history instead of starting a new conversation with a new
-    # system prompt.
-    response2 = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You already checked the branches' existence."},
-            {"role": "assistant", "content": (
-                f"Branch 'main' existence: {True}. "
-                f"Branch 'prakash-456789' existence: {True}."
-            )},
-            {"role": "user", "content": "Now get the diff of the two branches."},
-        ],
-        tools=tools
-    )
-
-    print(response2.choices[0].message.model_dump_json(indent=2))
 
 run_conversation()
