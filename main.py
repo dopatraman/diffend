@@ -27,7 +27,8 @@ def get_diff(base, head):
         "Authorization": f"token {token}"
     }
     response = requests.get(url, headers=headers)
-    if response.status == 200:
+    print(response)
+    if response.status_code == 200:
         return True
     return False
 
@@ -61,7 +62,7 @@ def run_conversation():
             {"role": "system", "content": "You are an extremely succinct communicator with experience using the Github API."},
             {
                 "role": "user",
-                "content": "I need to get a diff of two branches. Both exist. Get the diff of main and prakash-456789.",
+                "content": "I need to get a diff of two branches. Both exist. Get the diff of main and prakash-first-commit.",
             },
         ],
         tools=tools,
