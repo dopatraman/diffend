@@ -28,8 +28,8 @@ def get_diff(base, head):
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return True
-    return False
+        return json.loads(response.text)["files"]
+    return None
 
 # Find a way to generate these tool descriptions
 tools = [
@@ -47,8 +47,38 @@ tools = [
     },
 ]
 
-def run_after_check_branch_exists():
-    pass
+def run_after_diff(diff):
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is the explanation. Please remove the markdown format and just return serializable json."}
+        ],
+    )
+    message = response.choices[0].message
+    print(message.model_dump_json(indent=2))
+
+    response_ = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is the explanation. Please remove the markdown format and just return serializable json."},
+            message,
+            {"role": "user", "content": "Now group the changes by the type of change performed. Name the type of change performed a phrase that represents the group. Create a JSON where the key is the group name and the value is a list of file names that belong to the group."}
+        ],
+    )
+    message_ = response_.choices[0].message
+    print(message_.model_dump_json(indent=2))
+
+def end_conversation():
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are done with this conversation. It is time to say goodbye."},
+        ]
+    )
+    message = response.choices[0].message
+    print(message.model_dump_json(indent=2))
 
 def run_conversation():
     # Needs to be generated
@@ -76,8 +106,10 @@ def run_conversation():
                 base = arguments["base"]
                 head = arguments["head"]
                 diff = tool_lookup["get_diff"](base, head)
-        
+                if diff is not None:
+                    run_after_diff(diff)
+                    return
 
-    print(message.model_dump_json(indent=2))
+    end_conversation()
 
 run_conversation()
