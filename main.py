@@ -27,7 +27,6 @@ def get_diff(base, head):
         "Authorization": f"token {token}"
     }
     response = requests.get(url, headers=headers)
-    print(response)
     if response.status_code == 200:
         return True
     return False
