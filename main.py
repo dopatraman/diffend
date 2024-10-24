@@ -52,23 +52,23 @@ def run_after_diff(diff):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is the explanation. Please remove the markdown format and just return serializable json."}
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the markdown formatting and just return serializable json."},
         ],
     )
     message = response.choices[0].message
-    print(message.model_dump_json(indent=2))
+    # print(message.model_dump_json(indent=2))
 
     response_ = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is the explanation. Please remove the markdown format and just return serializable json."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the markdown formatting and just return serializable json."},
             message,
-            {"role": "user", "content": "Now group the changes by the type of change performed. Name the type of change performed a phrase that represents the group. Create a JSON where the key is the group name and the value is a list of file names that belong to the group."}
+            {"role": "user", "content": "Now group the changes by the type of change performed. Name the type of change performed a phrase that represents the group. Create a JSON where the key is the group name and the value is a list of JSON objects that contain the file names that belong to the group, an explanation, AND the plaintext patch. Please remove the backtick heading from the top of the output."}
         ],
     )
     message_ = response_.choices[0].message
-    print(message_.model_dump_json(indent=2))
+    print(message_.content)
 
 def end_conversation():
     response = client.chat.completions.create(
