@@ -56,7 +56,6 @@ def run_after_diff(diff):
         ],
     )
     message = response.choices[0].message
-    # print(message.model_dump_json(indent=2))
 
     response_ = client.chat.completions.create(
         model="gpt-4o",
@@ -68,7 +67,7 @@ def run_after_diff(diff):
         ],
     )
     message_ = response_.choices[0].message
-    print(message_.content)
+    return message_.content
 
 def end_conversation():
     response = client.chat.completions.create(
@@ -80,7 +79,7 @@ def end_conversation():
     message = response.choices[0].message
     print(message.model_dump_json(indent=2))
 
-def run_conversation():
+def run_conversation(diff):
     # Needs to be generated
     tool_lookup = {
         "get_diff": get_diff
@@ -91,7 +90,7 @@ def run_conversation():
             {"role": "system", "content": "You are an extremely succinct communicator with experience using the Github API."},
             {
                 "role": "user",
-                "content": "I need to get a diff of two branches. Both exist. Get the diff of main and prakash-first-commit.",
+                "content": f"I need to get a diff of two branches. Both exist. Get the diff of main and {diff}.",
             },
         ],
         tools=tools,
@@ -107,9 +106,6 @@ def run_conversation():
                 head = arguments["head"]
                 diff = tool_lookup["get_diff"](base, head)
                 if diff is not None:
-                    run_after_diff(diff)
-                    return
+                    return run_after_diff(diff)
 
     end_conversation()
-
-run_conversation()
