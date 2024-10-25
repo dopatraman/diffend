@@ -28,7 +28,7 @@ def get_diff(base, head):
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return json.loads(response.text)["files"]
+        return json.loads(response.text)
     return None
 
 # Find a way to generate these tool descriptions
@@ -67,7 +67,23 @@ def run_after_diff(diff):
         ],
     )
     message_ = response_.choices[0].message
-    return message_.content
+
+    response__ = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
+            {"role": "user", "content": "Give a high level explanation of the changes in the diff."},
+        ],
+    )
+
+    message__ = response__.choices[0].message
+
+    print(message__.content)
+    return {
+        "summary": message__.content,
+        "groups": json.loads(message_.content),
+        "fileByFile": json.loads(message.content)
+    }
 
 def end_conversation():
     response = client.chat.completions.create(
@@ -104,7 +120,7 @@ def run_conversation(diff):
                 arguments = json.loads(tool_call.function.arguments)
                 base = arguments["base"]
                 head = arguments["head"]
-                diff = tool_lookup["get_diff"](base, head)
+                diff = tool_lookup["get_diff"](base, head)["files"]
                 if diff is not None:
                     return run_after_diff(diff)
 

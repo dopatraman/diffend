@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Diffend</title>
+</head>
+<body>
+    <div id="loading-screen" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        var repo = "{{ repo }}";
+        var author = "{{ author }}";
+        var base = "{{ base }}";
+        var head = "{{ head }}";
+        var diffJson = {{ diff_json | tojson }};
+        console.log("Repository:", repo);
+        console.log("Author:", author);
+        console.log("Base:", base);
+        console.log("Head:", head);
+        console.log("Diff JSON:", diffJson);
+    </script>
+
+    <div class="container">
+        <div class="header">
+            <div class="title">Title</div>
+            <div class="author">Author/Repo: {{author}}/{{repo}}</div>
+            <div class="badge">Public</div>
+        </div>
+        <div class="main-area">
+            <div class="top-level">
+                <div class="info">Diff between {{head}} (head) and {{base}} (base)</div>
+                <div id="description" class="description"></div>
+                <div class="toolbar"></div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- {% for key in diff_json %}
+        <li>{{ key }}</li>
+    {% endfor %} -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

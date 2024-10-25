@@ -1,6 +1,7 @@
 from urllib.parse import unquote
-from flask import Flask, send_from_directory, jsonify
-from main import run_conversation
+import json
+from flask import Flask, send_from_directory, jsonify, render_template
+from main import run_conversation, get_diff
 
 app = Flask(__name__, static_folder='./static')
 
@@ -12,16 +13,14 @@ def send_file(filename):
 def home():
     return send_from_directory('static', 'index.html')
 
-@app.route('/diff/<base>/<head>')
-def diff(base, head):
-    # Flash / WSGI interprets all slashes as path params. All branches
-    # with slashes get interpreted this way. Double encoding is a hack
-    # but a quick way out. The better way to do this is to set AllowEncodedSlashes
-    # to On in a WSGI config somewhere.
+@app.route('/<author>/<repo>/<base>/<head>')
+def begin_workflow(author, repo, base, head):
     base_ = unquote(unquote(base))
     head_ = unquote(unquote(head))
-    # return f"{base_}/{head_}"
-    return jsonify(run_conversation(head))
+    # diff = get_diff(base, head)
+    resp = run_conversation(head)
+    print(type(resp))
+    return render_template('index.html', repo=repo, author=author, base=base_, head=head_, diff_json=resp)
 
 if __name__ == '__main__':
     app.run(port=8080)
