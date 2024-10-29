@@ -28,7 +28,7 @@ def get_diff(base, head):
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return json.loads(response.text)["files"]
+        return json.loads(response.text)
     return None
 
 # Find a way to generate these tool descriptions
@@ -52,23 +52,37 @@ def run_after_diff(diff):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the markdown formatting and just return serializable json."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the backtick heading from the top of the output."},
         ],
     )
     message = response.choices[0].message
-    # print(message.model_dump_json(indent=2))
 
     response_ = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the markdown formatting and just return serializable json."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the backtick heading from the top of the output."},
             message,
             {"role": "user", "content": "Now group the changes by the type of change performed. Name the type of change performed a phrase that represents the group. Create a JSON where the key is the group name and the value is a list of JSON objects that contain the file names that belong to the group, an explanation, AND the plaintext patch. Please remove the backtick heading from the top of the output."}
         ],
     )
     message_ = response_.choices[0].message
-    print(message_.content)
+
+    response__ = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
+            {"role": "user", "content": "Give a high level explanation of the changes in the diff in a single paragraph. Please limit the response to 3 sentences. DO NOT refer to any specific file changes."},
+        ],
+    )
+
+    message__ = response__.choices[0].message
+
+    return {
+        "summary": message__.content,
+        "groups": json.loads(message_.content),
+        "fileByFile": json.loads(message.content)
+    }
 
 def end_conversation():
     response = client.chat.completions.create(
@@ -80,7 +94,7 @@ def end_conversation():
     message = response.choices[0].message
     print(message.model_dump_json(indent=2))
 
-def run_conversation():
+def run_conversation(diff):
     # Needs to be generated
     tool_lookup = {
         "get_diff": get_diff
@@ -91,7 +105,7 @@ def run_conversation():
             {"role": "system", "content": "You are an extremely succinct communicator with experience using the Github API."},
             {
                 "role": "user",
-                "content": "I need to get a diff of two branches. Both exist. Get the diff of main and prakash-first-commit.",
+                "content": f"I need to get a diff of two branches. Both exist. Get the diff of main and {diff}.",
             },
         ],
         tools=tools,
@@ -105,11 +119,8 @@ def run_conversation():
                 arguments = json.loads(tool_call.function.arguments)
                 base = arguments["base"]
                 head = arguments["head"]
-                diff = tool_lookup["get_diff"](base, head)
+                diff = tool_lookup["get_diff"](base, head)["files"]
                 if diff is not None:
-                    run_after_diff(diff)
-                    return
+                    return run_after_diff(diff)
 
     end_conversation()
-
-run_conversation()
