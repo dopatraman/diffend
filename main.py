@@ -52,7 +52,7 @@ def run_after_diff(diff):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the markdown formatting and just return serializable json."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the backtick heading from the top of the output."},
         ],
     )
     message = response.choices[0].message
@@ -61,7 +61,7 @@ def run_after_diff(diff):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the markdown formatting and just return serializable json."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the backtick heading from the top of the output."},
             message,
             {"role": "user", "content": "Now group the changes by the type of change performed. Name the type of change performed a phrase that represents the group. Create a JSON where the key is the group name and the value is a list of JSON objects that contain the file names that belong to the group, an explanation, AND the plaintext patch. Please remove the backtick heading from the top of the output."}
         ],
@@ -72,13 +72,12 @@ def run_after_diff(diff):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Give a high level explanation of the changes in the diff."},
+            {"role": "user", "content": "Give a high level explanation of the changes in the diff in a single paragraph. Please limit the response to 3 sentences. DO NOT refer to any specific file changes."},
         ],
     )
 
     message__ = response__.choices[0].message
 
-    print(message__.content)
     return {
         "summary": message__.content,
         "groups": json.loads(message_.content),
