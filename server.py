@@ -17,9 +17,7 @@ def home():
 def begin_workflow(author, repo, base, head):
     base_ = unquote(unquote(base))
     head_ = unquote(unquote(head))
-    # diff = get_diff(base, head)
     resp = run_conversation(head)
-    print(type(resp))
     return render_template('index.html', repo=repo, author=author, base=base_, head=head_, diff_json=resp)
 
 if __name__ == '__main__':
