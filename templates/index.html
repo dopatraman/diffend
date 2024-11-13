@@ -36,12 +36,13 @@
                 <div class="info">Diff between {{head}} (head) and {{base}} (base)</div>
                 <div id="description" class="description">{{diff_json.summary}}</div>
             </div>
-            
+        </div>
+        <div class="main-area">
+            {% for group in diff_json['groups'] %}
+                <div class="info">{{ group }}</div>
+            {% endfor %}
         </div>
     </div>
-    <!-- {% for key in diff_json %}
-        <li>{{ key }}</li>
-    {% endfor %} -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

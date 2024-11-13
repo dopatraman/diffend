@@ -78,6 +78,7 @@ def run_after_diff(diff):
 
     message__ = response__.choices[0].message
 
+    print(message_.content)
     return {
         "summary": message__.content,
         "groups": json.loads(message_.content),
