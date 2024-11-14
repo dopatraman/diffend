@@ -38,8 +38,21 @@
             </div>
         </div>
         <div class="main-area">
-            {% for group in diff_json['groups'] %}
-                <div class="info">{{ group }}</div>
+            {% for group_name, groups in diff_json['groups'].items() %}
+                <div class="info">{{ group_name }}</div>
+                {% for info in groups %}
+                    <div class="code-area">
+                        <div class="file-name">{{info['filename']}}</div>
+                        <div class="explanation">{{info['explanation']}}</div>
+                        <div class="diff">
+                            {% for line_change in info['line_changes'] %}
+                                <div class="{{line_change['type']}}">
+                                    {{line_change['patch']}}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
             {% endfor %}
         </div>
     </div>

@@ -1,5 +1,5 @@
 from urllib.parse import unquote
-import json
+from pprint import pp
 from flask import Flask, send_from_directory, jsonify, render_template
 from main import run_conversation, get_diff
 
@@ -18,6 +18,7 @@ def begin_workflow(author, repo, base, head):
     base_ = unquote(unquote(base))
     head_ = unquote(unquote(head))
     resp = run_conversation(head)
+    pp(resp)
     return render_template('index.html', repo=repo, author=author, base=base_, head=head_, diff_json=resp)
 
 if __name__ == '__main__':
