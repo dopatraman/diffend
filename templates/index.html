@@ -36,12 +36,26 @@
                 <div class="info">Diff between {{head}} (head) and {{base}} (base)</div>
                 <div id="description" class="description">{{diff_json.summary}}</div>
             </div>
-            
+        </div>
+        <div class="main-area">
+            {% for group_name, groups in diff_json['groups'].items() %}
+                <div class="info">{{ group_name }}</div>
+                {% for info in groups %}
+                    <div class="code-area">
+                        <div class="file-name">{{info['filename']}}</div>
+                        <div class="explanation">{{info['explanation']}}</div>
+                        <div class="diff">
+                            {% for line_change in info['line_changes'] %}
+                                <div class="{{line_change['type']}}">
+                                    {{line_change['patch']}}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
         </div>
     </div>
-    <!-- {% for key in diff_json %}
-        <li>{{ key }}</li>
-    {% endfor %} -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

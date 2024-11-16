@@ -52,7 +52,7 @@ def run_after_diff(diff):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
-            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the backtick heading from the top of the output."},
+            {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please REMOVE the backtick heading from the top of the output, this is a requirement."},
         ],
     )
     message = response.choices[0].message
@@ -63,7 +63,7 @@ def run_after_diff(diff):
             {"role": "system", "content": f"You are a succinct communicator. You have the diff between two branches. {json.dumps(diff)}. Explain it as concisely as possible."},
             {"role": "user", "content": "Transform your explanation into a JSON where the key is the file name, and the value is a JSON that contains the explanation as well as the text of the diff. Please remove the backtick heading from the top of the output."},
             message,
-            {"role": "user", "content": "Now group the changes by the type of change performed. Name the type of change performed a phrase that represents the group. Create a JSON where the key is the group name and the value is a list of JSON objects that contain the file names that belong to the group, an explanation, AND the plaintext patch. Please remove the backtick heading from the top of the output."}
+            {"role": "user", "content": "Now group the changes by the type of change performed. Name the type of change performed a phrase that represents the group. Create a JSON where the key is the group name and the value is a list of JSON objects that contain the file names that belong to the group under the key 'filename', an explanation under the key 'explanation', AND a list of changes in the patch under the key 'line_changes'. Each change should be an object that represents a line in the patch. The object should have a field 'type' that is either 'addition'  or 'deletion', and a field 'patch' that is the plaintext patch of the line. Please REMOVE the backtick heading from the top of the output, this is a requirement."}
         ],
     )
     message_ = response_.choices[0].message
