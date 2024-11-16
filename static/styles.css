@@ -85,3 +85,32 @@ body, html {
     border-radius: 10px;
     font-size: 12px;
 }
+
+.code-area {
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.file-name {
+    border-bottom: 1px solid #DDD;
+    color: #7A7A7A;
+    background-color: #EEE;
+    border-radius: 8px 8px 0px 0px;
+    padding: 5px 10px 5px 10px;
+}
+
+.explanation {
+    padding: 10px;
+    border-bottom: 1px solid #DDD;
+}
+
+.addition {
+    background-color: #dafbe1;
+    color: #555;
+}
+
+.deletion {
+    background-color: #ffebe9;
+    color: #555;
+}
